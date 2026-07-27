@@ -1,0 +1,224 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace LINQ_Assignment_1
+{
+    #region Models & Data Setup
+    public class Product
+    {
+        public int ProductID { get; set; }
+        public string ProductName { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public decimal UnitPrice { get; set; }
+        public int UnitsInStock { get; set; }
+    }
+
+    public class Order
+    {
+        public int OrderID { get; set; }
+        public DateTime OrderDate { get; set; }
+    }
+
+    public class Customer
+    {
+        public string CustomerID { get; set; } = string.Empty;
+        public List<Order> Orders { get; set; } = new();
+    }
+
+    public static class ListGenerators
+    {
+        public static List<Product> ProductList { get; set; } = new()
+        {
+            new Product { ProductID = 1, ProductName = "Chai", Category = "Beverages", UnitPrice = 18.00m, UnitsInStock = 39 },
+            new Product { ProductID = 2, ProductName = "Chang", Category = "Beverages", UnitPrice = 19.00m, UnitsInStock = 17 },
+            new Product { ProductID = 3, ProductName = "Aniseed Syrup", Category = "Condiments", UnitPrice = 10.00m, UnitsInStock = 13 },
+            new Product { ProductID = 4, ProductName = "Chef Anton's Cajun Seasoning", Category = "Condiments", UnitPrice = 22.00m, UnitsInStock = 53 },
+            new Product { ProductID = 5, ProductName = "Chef Anton's Gumbo Mix", Category = "Condiments", UnitPrice = 21.35m, UnitsInStock = 0 },
+            new Product { ProductID = 6, ProductName = "Ikura", Category = "Seafood", UnitPrice = 31.00m, UnitsInStock = 31 },
+            new Product { ProductID = 7, ProductName = "Spegesild", Category = "Seafood", UnitPrice = 12.00m, UnitsInStock = 6 }
+        };
+
+        public static List<Customer> CustomerList { get; set; } = new()
+        {
+            new Customer
+            {
+                CustomerID = "ALFKI",
+                Orders = new List<Order>
+                {
+                    new Order { OrderID = 10643, OrderDate = new DateTime(1997, 8, 25) },
+                    new Order { OrderID = 10692, OrderDate = new DateTime(1995, 10, 3) }
+                }
+            },
+            new Customer
+            {
+                CustomerID = "ANATR",
+                Orders = new List<Order>
+                {
+                    new Order { OrderID = 10308, OrderDate = new DateTime(1998, 1, 15) }
+                }
+            }
+        };
+    }
+    #endregion
+
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            #region Question 01
+            // 1. Get all products from the "Seafood" category. Print each product's name and price.
+            Console.WriteLine("--- Question 01 ---");
+            var q01 = ListGenerators.ProductList.Where(p => p.Category == "Seafood");
+            foreach (var item in q01)
+            {
+                Console.WriteLine($"Name: {item.ProductName}, Price: {item.UnitPrice:C}");
+            }
+            #endregion
+
+            #region Question 02
+            // 2. Get a list of only the product names from ProductList. Print each name.
+            Console.WriteLine("\n--- Question 02 ---");
+            var q02 = ListGenerators.ProductList.Select(p => p.ProductName);
+            foreach (var name in q02)
+            {
+                Console.WriteLine(name);
+            }
+            #endregion
+
+            #region Question 03
+            // 3. Sort all products by UnitPrice (ascending). Print each product's name and price.
+            Console.WriteLine("\n--- Question 03 ---");
+            var q03 = ListGenerators.ProductList.OrderBy(p => p.UnitPrice);
+            foreach (var item in q03)
+            {
+                Console.WriteLine($"Name: {item.ProductName}, Price: {item.UnitPrice:C}");
+            }
+            #endregion
+
+            #region Question 04
+            // 4. Get all products where UnitPrice is between 10 and 30.
+            Console.WriteLine("\n--- Question 04 ---");
+            var q04 = ListGenerators.ProductList.Where(p => p.UnitPrice >= 10 && p.UnitPrice <= 30);
+            foreach (var item in q04)
+            {
+                Console.WriteLine($"Name: {item.ProductName}, Price: {item.UnitPrice:C}");
+            }
+            #endregion
+
+            #region Question 05
+            // 5. Get all products that are in stock (UnitsInStock > 0) and belong to the "Condiments" category.
+            Console.WriteLine("\n--- Question 05 ---");
+            var q05 = ListGenerators.ProductList.Where(p => p.UnitsInStock > 0 && p.Category == "Condiments");
+            foreach (var item in q05)
+            {
+                Console.WriteLine($"Name: {item.ProductName}, Category: {item.Category}, Stock: {item.UnitsInStock}");
+            }
+            #endregion
+
+            #region Question 06
+            // 6. Create a new anonymous type with three properties: Name, Price, StockStatus ("Available" or "Out of Stock").
+            Console.WriteLine("\n--- Question 06 ---");
+            var q06 = ListGenerators.ProductList.Select(p => new
+            {
+                Name = p.ProductName,
+                Price = p.UnitPrice,
+                StockStatus = p.UnitsInStock > 0 ? "Available" : "Out of Stock"
+            });
+            foreach (var item in q06)
+            {
+                Console.WriteLine($"Name: {item.Name}, Price: {item.Price:C}, Status: {item.StockStatus}");
+            }
+            #endregion
+
+            #region Question 07
+            // 7. Print each product's name along with its position (1-based) in the list.
+            Console.WriteLine("\n--- Question 07 ---");
+            var q07 = ListGenerators.ProductList.Select((p, index) => $"{index + 1}. {p.ProductName}");
+            foreach (var item in q07)
+            {
+                Console.WriteLine(item);
+            }
+            #endregion
+
+            #region Question 08
+            // 8. Sort ProductList by Category ascending, then within each category, sort by UnitPrice descending.
+            Console.WriteLine("\n--- Question 08 ---");
+            var q08 = ListGenerators.ProductList
+                        .OrderBy(p => p.Category)
+                        .ThenByDescending(p => p.UnitPrice);
+            foreach (var item in q08)
+            {
+                Console.WriteLine($"Category: {item.Category}, Name: {item.ProductName}, Price: {item.UnitPrice:C}");
+            }
+            #endregion
+
+            #region Question 09
+            // 9. Get all products from the "Beverages" category, sorted by UnitsInStock descending. Print name and stock.
+            Console.WriteLine("\n--- Question 09 ---");
+            var q09 = ListGenerators.ProductList
+                        .Where(p => p.Category == "Beverages")
+                        .OrderByDescending(p => p.UnitsInStock);
+            foreach (var item in q09)
+            {
+                Console.WriteLine($"Name: {item.ProductName}, Stock: {item.UnitsInStock}");
+            }
+            #endregion
+
+            #region Question 10
+            // 10. Using QUERY SYNTAX with a compound from clause, list all orders placed in 1997 or later showing CustomerID and OrderDate.
+            Console.WriteLine("\n--- Question 10 ---");
+            var q10 = from c in ListGenerators.CustomerList
+                      from o in c.Orders
+                      where o.OrderDate.Year >= 1997
+                      select new
+                      {
+                          c.CustomerID,
+                          o.OrderDate
+                      };
+            foreach (var item in q10)
+            {
+                Console.WriteLine($"CustomerID: {item.CustomerID}, OrderDate: {item.OrderDate:yyyy-MM-dd}");
+            }
+            #endregion
+
+            #region Question 11
+            // 11. Show position number alongside ProductName.
+            Console.WriteLine("\n--- Question 11 ---");
+            var q11 = ListGenerators.ProductList.Select((p, index) => new
+            {
+                Position = index + 1,
+                p.ProductName
+            });
+            foreach (var item in q11)
+            {
+                Console.WriteLine($"Position: {item.Position}, Product: {item.ProductName}");
+            }
+            #endregion
+
+            #region Question 12
+            // 12. Sort first by word length and then by a case-insensitive sort of the words in an array.
+            Console.WriteLine("\n--- Question 12 ---");
+            string[] Arr12 = { "aPPLE", "AbAcUs", "bRaNcH", "BIUeBeRrY", "ClOvEr", "cHeRry" };
+            var q12 = Arr12.OrderBy(w => w.Length)
+                           .ThenBy(w => w, StringComparer.OrdinalIgnoreCase);
+            foreach (var word in q12)
+            {
+                Console.WriteLine(word);
+            }
+            #endregion
+
+            #region Question 13
+            // 13. Create a list of all digits in the array whose second letter is 'i' that is reversed from the order in the original array.
+            Console.WriteLine("\n--- Question 13 ---");
+            string[] digits = { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
+            var q13 = digits.Where(d => d.Length > 1 && d[1] == 'i')
+                           .Reverse();
+            foreach (var word in q13)
+            {
+                Console.WriteLine(word);
+            }
+            #endregion
+        }
+    }
+}
