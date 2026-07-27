@@ -1,0 +1,129 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace LINQ_Assignment_2_Simplified
+{
+    #region Models & Data Setup
+    public class Product { public int ProductID { get; set; }; public string ProductName { get; set; } = ""; public string Category { get; set; } = ""; public decimal UnitPrice { get; set; }; public int UnitsInStock { get; set; }; }
+    public class Order { public int OrderID { get; set; }; public decimal TotalAmount { get; set; }; }
+    public class Customer { public string CustomerID { get; set; } = ""; public string CompanyName { get; set; } = ""; public string Country { get; set; } = ""; public List<Order> Orders { get; set; } = new(); }
+
+    public static class Data
+    {
+        public static List<Product> Products = new()
+        {
+            new Product { ProductID = 1, ProductName = "Chai", Category = "Beverages", UnitPrice = 18.00m, UnitsInStock = 39 },
+            new Product { ProductID = 2, ProductName = "Chang", Category = "Beverages", UnitPrice = 19.00m, UnitsInStock = 17 },
+            new Product { ProductID = 3, ProductName = "Aniseed Syrup", Category = "Condiments", UnitPrice = 10.00m, UnitsInStock = 13 },
+            new Product { ProductID = 4, ProductName = "Chef Anton's Seasoning", Category = "Condiments", UnitPrice = 22.00m, UnitsInStock = 53 },
+            new Product { ProductID = 5, ProductName = "Chef Anton's Mix", Category = "Condiments", UnitPrice = 21.35m, UnitsInStock = 0 },
+            new Product { ProductID = 6, ProductName = "Ikura", Category = "Seafood", UnitPrice = 31.00m, UnitsInStock = 31 },
+            new Product { ProductID = 7, ProductName = "Spegesild", Category = "Seafood", UnitPrice = 12.00m, UnitsInStock = 6 },
+            new Product { ProductID = 18, ProductName = "Carnarvon Special", Category = "Beverages", UnitPrice = 55.00m, UnitsInStock = 20 }
+        };
+
+        public static List<Customer> Customers = new()
+        {
+            new Customer { CustomerID = "ALFKI", CompanyName = "Alfreds", Country = "Germany", Orders = new() { new Order { TotalAmount = 1000m } } },
+            new Customer { CustomerID = "ANATR", CompanyName = "Ana Trujillo", Country = "Mexico", Orders = new() { new Order { TotalAmount = 500m } } }
+        };
+    }
+    #endregion
+
+    internal class Program
+    {
+        static void Main()
+        {
+            #region Q01 - Top 3 Expensive
+            var q1 = Data.Products.OrderByDescending(p => p.UnitPrice).Take(3);
+            #endregion
+
+            #region Q02 - Page 2 (Page Size 5)
+            var q2 = Data.Products.Skip(5).Take(5);
+            #endregion
+
+            #region Q03 - Take While Price < 25
+            var q3 = Data.Products.OrderBy(p => p.UnitPrice).TakeWhile(p => p.UnitPrice < 25);
+            #endregion
+
+            #region Q04 - All Seafood in Stock
+            bool q4 = Data.Products.Where(p => p.Category == "Seafood").All(p => p.UnitsInStock > 0);
+            #endregion
+
+            #region Q05 - Contains ID 9
+            bool q5 = new[] { 3, 9, 13, 18 }.Contains(9);
+            #endregion
+
+            #region Q06 - Group by Category & Count
+            var q6 = Data.Products.GroupBy(p => p.Category).Select(g => new { Category = g.Key, Count = g.Count() });
+            #endregion
+
+            #region Q07 - Group by Category (Names Only)
+            var q7 = Data.Products.GroupBy(p => p.Category, p => p.ProductName);
+            #endregion
+
+            #region Q08 - Categories with > 3 Products
+            var q8 = Data.Products.GroupBy(p => p.Category).Where(g => g.Count() > 3).Select(g => g.Key);
+            #endregion
+
+            #region Q09 - Group Customers by Country (Query Syntax)
+            var q9 = from c in Data.Customers
+                     group c by c.Country into g
+                     select new { Country = g.Key, Count = g.Count(), TotalValue = g.Sum(c => c.Orders.Sum(o => o.TotalAmount)) };
+            #endregion
+
+            #region Q10 - Total Units in Stock
+            int q10 = Data.Products.Sum(p => p.UnitsInStock);
+            #endregion
+
+            #region Q11 - Cheapest & Most Expensive
+            decimal minPrice = Data.Products.Min(p => p.UnitPrice);
+            decimal maxPrice = Data.Products.Max(p => p.UnitPrice);
+            #endregion
+
+            #region Q12 - Distinct Categories
+            var q12 = Data.Products.Select(p => p.Category).Distinct();
+            #endregion
+
+            #region Q13 - Except Numbers
+            var q13 = new[] { 1, 3, 5, 7, 9, 11, 13 }.Except(new[] { 3, 6, 9, 12, 15, 13 });
+            #endregion
+
+            #region Q14 - Except Countries Case-Insensitive
+            var q14 = new[] { "Germany", "France", "UK", "Spain" }
+                .Except(new[] { "france", "SPAIN", "Italy" }, StringComparer.OrdinalIgnoreCase);
+            #endregion
+
+            #region Q15 - ToDictionary & Find ID 18
+            var dict = Data.Products.ToDictionary(p => p.ProductID);
+            Product? p18 = dict.GetValueOrDefault(18);
+            #endregion
+
+            #region Q16 - First Price > 50
+            var q16 = Data.Products.First(p => p.UnitPrice > 50);
+            #endregion
+
+            #region Q17 - FirstOrDefault Price > 500
+            var q17 = Data.Products.FirstOrDefault(p => p.UnitPrice > 500);
+            #endregion
+
+            #region Q18 - Multiplication Table Row for 7
+            var q18 = Enumerable.Range(1, 10).Select(i => $"7 x {i} = {7 * i}");
+            #endregion
+
+            #region Q19 - Evens 1 to 30
+            var q19 = Enumerable.Range(1, 30).Where(n => n % 2 == 0);
+            #endregion
+
+            #region Q20 - Concat First 3 Products & Customers
+            var q20 = Data.Products.Select(p => p.ProductName).Take(3)
+                .Concat(Data.Customers.Select(c => c.CompanyName).Take(3));
+            #endregion
+
+            #region Q21 - Zip Products & Customers
+            var q21 = Data.Products.Zip(Data.Customers, (p, c) => $"{p.ProductName} sold to {c.CompanyName}");
+            #endregion
+        }
+    }
+}
